@@ -62,13 +62,13 @@ module FlatTokens
   class StringToken < Token
     FlatTokens::TOKENS['s'] = self
     @indicator = 's'
-    
     def re
       get_default_re('.')
     end
   end
 
   class  FloatToken < Token
+    #TODO: Implement floats
     FlatTokens::TOKENS['f'] = self
     @indicator = 'f'
 
@@ -78,21 +78,26 @@ module FlatTokens
   end
  
   class BoolToken < Token
+    #TODO: Add back multi-char options and think through allowing padding
+    #TODO: Allow users to override true and false
     FlatTokens::TOKENS['b'] = self
     @indicator = 'b'
-    TRUE_TOKENS = ['t','tr','tru','true','y','ye','yes','1'] 
-    FALSE_TOKENS = ['f','fa','fal','fals','false','n','no','0']
+    TRUE_TOKENS = ['t','y','1'] 
+    FALSE_TOKENS = ['f','n','0']
     
     def re
       return "(?:#{(TRUE_TOKENS + FALSE_TOKENS).join('|')})"
     end
 
     def translate str
-      return TRUE_TOKENS.include?(str)
+      return TRUE_TOKENS.include?(str.downcase)
     end
   end
 
   class IgnoreToken < Token
+    #TODO: implement
+    #TODO: Think through how to remove ignored stuff form final output
+    #IDEA: use :ignore symbol that is stripped out at end
     FlatTokens::TOKENS['_'] = self
     @indicator = '_'
     @re = '_'
