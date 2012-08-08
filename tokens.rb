@@ -1,14 +1,25 @@
 module FlatTokens
   TOKENS = {}
   
-  def self.token_for_indicator(indicator, position, length, modifier)
-    return TOKENS[indicator].new(position,length,modifier) 
+  def self.token_for_indicator(indicator)
+    return TOKENS[indicator].new
   end
   
   class BaseToken
     attr_accessor :position
-    def initialize(position)
-      @position = position
+  end
+
+  class DecimalToken < BaseToken
+    attr_accessor :power
+    attr_accessor :length
+
+    def re
+      "(?:(?:\\+|-)\\d{#{@length-1}}|\\d{#{@length}})"
+    end
+
+    def translate str
+      base = str.to_f
+      return base / (10**@power)
     end
   end
 
@@ -16,12 +27,6 @@ module FlatTokens
     attr_accessor :length
     attr_accessor :modifier
 
-    def initialize(position, length, modifier)
-      super(position)
-      @length = length
-      @modifier = modifier
-    end
-  
     def get_default_re re
       if not @length.nil?
         return "#{re}{#{@length}}"
@@ -44,7 +49,7 @@ module FlatTokens
     def re
       regex = '(?:\+|-)?\\d'
       if not @length.nil?
-        return "(?:(?:\\+|-)\\d{#{@length.to_i-1}}|\\d{#{@length.to_i}})"
+        return "(?:(?:\\+|-)\\d{#{@length-1}}|\\d{#{@length}})"
       elsif not @modifier.nil?
         return "#{regex}#{@modifier}"
       else
@@ -86,7 +91,7 @@ module FlatTokens
     FALSE_TOKENS = ['f','n','0']
     
     def re
-      return "(?:#{(TRUE_TOKENS + FALSE_TOKENS).join('|')})"
+      return "(?:#{(TRUE_TOKENS + FALSE_TOKENS + TRUE_TOKENS.map{|x| x.upcase} + FALSE_TOKENS.map{|x| x.upcase}).join('|')})"
     end
 
     def translate str

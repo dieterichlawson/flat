@@ -16,19 +16,21 @@ end
 # langauge definition
 
 TYPES = ['i','f','s','b','_']
- 
 TYPE_RE = "[#{TYPES.join}]"
 
 MODIFIERS = ['+','*']
 MODIFIER_RE = "[#{MODIFIERS.join}]"
 
+#TODO: Figure out better name than token
 TOKEN_RE = "#{TYPE_RE}(?:#{MODIFIER_RE}|[0-9]+)?"
 
 DATE_TYPES = ['a','A','b','B','c','d','H','I','j','m','M','p','S','U','w','W','x','X','Y','Z']
 DATE_TYPES_RE = "[#{DATE_TYPES.join} ]"
 DATE_RE = "%#{DATE_TYPES.join}* %" 
 
-FLOAT_RE = "D(?:\\.\\d+)?"
+FLOAT_TYPE = 'D'
+FLOAT_SEP = 'e'
+FLOAT_RE = "#{FLOAT_TYPE}\\d+(?:#{FLOAT_SEP}\\d+)?"
 
 STATEMENTS = [TOKEN_RE, DATE_RE, FLOAT_RE]
 
@@ -44,9 +46,8 @@ TOTAL_DATE_RE = DATE_RE.to_total_re
 
 #named regexes used for parsing
 NAMED_TOKEN_RE = Regexp.new(/(?<type>#{TYPE_RE})(?:(?<length>[0-9]+)|(?<modifier>#{MODIFIER_RE}))?/)
-NAMED_FLOAT_RE = Regexp.new(/D(?:\\.(?<power>\\d+))?/)
+NAMED_FLOAT_RE = Regexp.new(/#{FLOAT_TYPE}(?<length>\d+)(?:#{FLOAT_SEP}(?<power>\d+))?/)
 NAMED_DATE_RE = Regexp.new(/%(?<format>#{DATE_TYPES_RE})%/)
-
 
 #def string_in_lang str
 #  return not (str =~ LANGUAGE_RE).nil?
@@ -61,10 +62,18 @@ def create_parser str
     case token
     when TOTAL_TOKEN_RE
       token_match = token.match(NAMED_TOKEN_RE)
-      lang << FlatTokens.token_for_indicator(token_match[:type],match.begin(0),token_match[:length],token_match[:modifier])
+      t = FlatTokens.token_for_indicator(token_match[:type])
+      t.position = match.begin(0)
+      t.length = token_match[:length].nil? ? nil : token_match[:length].to_i
+      t.modifier = token_match[:modifier]
+      lang << t
     when TOTAL_FLOAT_RE
       float_match = token.match(NAMED_FLOAT_RE)
- 
+      t = FlatTokens::DecimalToken.new
+      t.position = match.begin(0)
+      t.power = float_match[:power].nil? ? nil : float_match[:power].to_i
+      t.length = float_match[:length].to_i
+      lang << t 
     when TOTAL_DATE_RE
       date_match = token.match(NAMED_DATE_RE)
 
