@@ -2,13 +2,22 @@ class FlatParser
   attr_accessor :re
   attr_accessor :lang
   
-  def initialize(re,lang)
-    @re = re
+  def initialize(lang)
     @lang = lang
+    @re = re_from_language @lang
   end
 
   def string_in_lang? str
     return true
+  end
+  
+  def re_from_language lang
+    regex = "^"
+    lang.each do |token|
+      regex += "(#{token.re})"
+    end
+    regex += "$"
+    return Regexp.new(regex)
   end
 
   def parse str
