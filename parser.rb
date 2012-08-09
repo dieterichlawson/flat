@@ -7,10 +7,13 @@ class FlatParser
     @re = re_from_language @lang
   end
 
+  # returns true if the supplied string is in the parser's language
   def string_in_lang? str
-    return true
+    return (not (str =~ @re).nil?)
   end
   
+  # Creates a regular expression from the 
+  # supplied language
   def re_from_language lang
     regex = "^"
     lang.each do |token|
@@ -26,6 +29,6 @@ class FlatParser
     str.match(@re)[1..-1].each_with_index do |val,index|
       result << lang[index].translate(val)
     end
-    return result
+    return result - [:ignore]
   end
 end

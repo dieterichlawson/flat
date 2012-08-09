@@ -1,111 +1,125 @@
-module FlatTokens
-  TOKENS = {}
-  
-  def self.token_for_indicator(indicator)
-    return TOKENS[indicator].new
-  end
-  
-  class BaseToken
-    attr_accessor :position
-  end
-
-  class DecimalToken < BaseToken
-    attr_accessor :power
-    attr_accessor :length
-
-    def re
-      "(?:(?:\\+|-)\\d{#{@length-1}}|\\d{#{@length}})"
-    end
-
-    def translate str
-      base = str.to_f
-      return base / (10**@power)
-    end
-  end
-
-  class Token < BaseToken
-    attr_accessor :length
-    attr_accessor :modifier
-
-    def get_default_re re
-      if not @length.nil?
-        return "#{re}{#{@length}}"
-      elsif not @modifier.nil?
-        return "#{re}#{@modifier}"
-      else
-        return re
-      end
-    end
-
-    def translate str
-      return str
-    end
-  end
-  
-  class IntToken < Token
-    FlatTokens::TOKENS['i'] = self
-    @indicator = 'i'
-
-    def re
-      regex = '(?:\+|-)?\\d'
-      if not @length.nil?
-        return "(?:(?:\\+|-)\\d{#{@length-1}}|\\d{#{@length}})"
-      elsif not @modifier.nil?
-        return "#{regex}#{@modifier}"
-      else
-        return regex
-      end
-    end
-
-    def translate str
-      return Integer(str)
-    rescue ArgumentError => err
-      return str.to_i
-    end
-  end
-
-  class StringToken < Token
-    FlatTokens::TOKENS['s'] = self
-    @indicator = 's'
-    def re
-      get_default_re('.')
-    end
-  end
-
-  class  FloatToken < Token
-    #TODO: Implement floats
-    FlatTokens::TOKENS['f'] = self
-    @indicator = 'f'
-
-    def get_re
-       
-    end
-  end
- 
-  class BoolToken < Token
-    #TODO: Add back multi-char options and think through allowing padding
-    #TODO: Allow users to override true and false
-    FlatTokens::TOKENS['b'] = self
-    @indicator = 'b'
-    TRUE_TOKENS = ['t','y','1'] 
-    FALSE_TOKENS = ['f','n','0']
+module Flat
+  module Tokens
+    TOKEN_CLASSES = {}
     
-    def re
-      return "(?:#{(TRUE_TOKENS + FALSE_TOKENS + TRUE_TOKENS.map{|x| x.upcase} + FALSE_TOKENS.map{|x| x.upcase}).join('|')})"
+    def self.token_for_indicator(indicator)
+      return TOKEN_CLASSES[indicator].new
+    end
+    
+    class Token
+      attr_accessor :position
+      attr_accessor :length
+      attr_accessor :indicator
+
+      def self.indicator= indicator
+        TOKEN_CLASSES[indicator] = self
+        @indicator = indicator
+      end
     end
 
-    def translate str
-      return TRUE_TOKENS.include?(str.downcase)
+    class FixedFloatToken < Token
+      attr_accessor :power
+      self.indicator = 'D'
+
+      #TODO: Allow negative powers
+      def re
+        "(?:(?:\\+|-)\\d{#{@length-1}}|\\d{#{@length}})"
+      end
+   
+      def translate str
+        base = str.to_f
+        return base / (10**@power)
+      end
+    end
+
+    class BasicToken < Token
+      attr_accessor :modifier
+    
+      def re token= '.'
+        if not @length.nil?
+          return "#{token}{#{@length}}"
+        elsif not @modifier.nil?
+          return "#{token}#{@modifier}"
+        else
+          return token
+        end
+      end
+
+    end
+    
+    class IntToken < BasicToken
+      self.indicator = 'i'
+      RE = '(?:\+|-)?\\d'
+
+      def re
+        if not @length.nil?
+          return "(?:(?:\\+|-)\\d{#{@length-1}}|\\d{#{@length}})"
+        elsif not @modifier.nil?
+          return "#{RE}#{@modifier}"
+        else
+          return RE
+        end
+      end
+
+      def translate str
+        return Integer(str)
+      rescue ArgumentError => err
+        return str.to_i
+      end
+    end
+
+    class StringToken < BasicToken
+      self.indicator = 's'
+      
+      def translate str
+        return str
+      end
+    end
+
+    class  FloatToken < BasicToken
+      self.indicator = 'f'
+      #TODO: Implement floats
+
+      def get_re
+        #TODO: Implement 
+      end
+
+      def translate
+        #TODO: Implement
+      end
+    end
+   
+    class BoolToken < BasicToken
+      self.indicator = 'b'
+      TRUE_TOKENS = ['t','y','1'] 
+      FALSE_TOKENS = ['f','n','0']
+      
+      #TODO: Add back multi-char options and think through allowing padding
+      #TODO: Allow users to override true and false
+
+      def re
+        return "(?:#{(TRUE_TOKENS + TRUE_TOKENS.map {|c| c.upcase} +
+                     FALSE_TOKENS + FALSE_TOKENS.map{|c| c.upcase}).join('|')})"
+      end
+
+      def translate str
+        if TRUE_TOKENS.include?(str.downcase)
+          return true
+        elsif FALSE_TOKENS.include?(str.downcase)
+          return false
+        else
+          return nil
+        end
+      end
+    end
+
+    class IgnoreToken < BasicToken
+      self.indicator = '_'
+
+      # ignore symbols are removed from the final output
+      def translate str
+        return :ignore
+      end
     end
   end
-
-  class IgnoreToken < Token
-    #TODO: implement
-    #TODO: Think through how to remove ignored stuff form final output
-    #IDEA: use :ignore symbol that is stripped out at end
-    FlatTokens::TOKENS['_'] = self
-    @indicator = '_'
-    @re = '_'
-  end
-
 end
