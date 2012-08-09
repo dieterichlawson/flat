@@ -1,10 +1,6 @@
 module Flat
   module Language
     
-    def self.to_total_re str
-      /^#{str}$/
-    end
-
     #language definition
     BASIC_TYPES = ['i','f','s','b','_']
     BASIC_TYPE_RE = "[#{BASIC_TYPES.join}]"
@@ -26,17 +22,17 @@ module Flat
     TOKEN_RE =  "#{TOKENS.join('|')}"
     CAPTURE_TOKEN_RE =  /(#{TOKENS.join('|')})/
 
-    LANGUAGE_RE = Regexp.new(/^(?:(#{TOKEN_RE}) *)+$/)
+    LANGUAGE_RE = /^(?:(#{TOKEN_RE}) *)+$/
 
     #total regexes, i.e. regexes that must match the whole string
-    TOTAL_BASIC_TYPE_RE = to_total_re BASIC_TOKEN_RE
-    TOTAL_FIXED_FLOAT_RE = to_total_re FIXED_FLOAT_TOKEN_RE
-    TOTAL_DATE_RE = to_total_re DATE_TOKEN_RE
+    TOTAL_BASIC_TYPE_RE = /^#{BASIC_TOKEN_RE}$/
+    TOTAL_FIXED_FLOAT_RE = /^#{FIXED_FLOAT_TOKEN_RE}$/
+    TOTAL_DATE_RE = /^#{DATE_TOKEN_RE}$/
 
     #named regexes used for parsing tokens
-    NAMED_BASIC_TYPE_RE = Regexp.new(/(?<type>#{BASIC_TYPE_RE})(?:(?<length>[0-9]+)|(?<modifier>#{MODIFIER_RE}))?/)
-    NAMED_FIXED_FLOAT_RE = Regexp.new(/#{FIXED_FLOAT_TYPE}(?<length>\d+)(?:#{FIXED_FLOAT_SEP}(?<power>\d+))?/)
-    NAMED_DATE_RE = Regexp.new(/%(?<format>#{DATE_TYPES_RE})%/)
+    NAMED_BASIC_TYPE_RE = /(?<type>#{BASIC_TYPE_RE})(?:(?<length>[0-9]+)|(?<modifier>#{MODIFIER_RE}))?/
+    NAMED_FIXED_FLOAT_RE = /#{FIXED_FLOAT_TYPE}(?<length>\d+)(?:#{FIXED_FLOAT_SEP}(?<power>\d+))?/
+    NAMED_DATE_RE = /%(?<format>#{DATE_TYPES_RE})%/
 
     # Returns true if the supplied string is in
     # Flat's formatting language, as determined
