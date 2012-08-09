@@ -3,8 +3,18 @@
 load 'tokens.rb'
 load 'parser.rb'
 
+class String
+  def match_all regex
+    self.to_enum(:scan, regex).map {Regexp.last_match}
+  end
+
+  def to_total_re
+    /^#{self}$/
+  end
+end 
+
 module Flat
-  
+
   #language definition
   BASIC_TYPES = ['i','f','s','b','_']
   BASIC_TYPE_RE = "[#{BASIC_TYPES.join}]"
@@ -76,12 +86,4 @@ module Flat
   end
 end
 
-class String
-  def match_all regex
-    self.to_enum(:scan, regex).map {Regexp.last_match}
-  end
 
-  def to_total_re
-    /^#{self}$/
-  end
-end
