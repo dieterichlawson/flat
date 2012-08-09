@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-
 load 'tokens.rb'
 load 'parser.rb'
 
@@ -52,7 +50,7 @@ module Flat
     # Flat's formatting language, as determined
     # by the LANGUAGE_RE regex.
     def self.string_in_lang(str)
-      return (not (str =~ Language::LANGUAGE_RE).nil?)
+      return (not (str =~ LANGUAGE_RE).nil?)
     end
   end
 
