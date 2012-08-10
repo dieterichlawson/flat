@@ -1,6 +1,3 @@
-load 'lang.rb'
-load 'tokens.rb'
-load 'parser.rb'
 
 class String
   def match_all regex
