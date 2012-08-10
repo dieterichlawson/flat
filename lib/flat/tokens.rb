@@ -17,7 +17,7 @@ module Flat
       end
     end
 
-    class FixedFloatToken < Token
+    class FixedPointToken < Token
       attr_accessor :power
       self.indicator = 'D'
 

@@ -1,4 +1,3 @@
-
 class String
   def match_all regex
     self.to_enum(:scan, regex).map {Regexp.last_match}
@@ -14,16 +13,16 @@ module Flat
     str.match_all(Language::CAPTURE_TOKEN_RE).each do |match|
       token_str = match[0]
       case token_str
-      when Language::TOTAL_BASIC_TYPE_RE
-        token_pieces = token_str.match(Language::NAMED_BASIC_TYPE_RE)
+      when Language::TOTAL_SIMPLE_TYPE_RE
+        token_pieces = token_str.match(Language::NAMED_SIMPLE_TYPE_RE)
         t = Flat::Tokens.token_for_indicator(token_pieces[:type])
         t.position = match.begin(0)
         t.length = token_pieces[:length].nil? ? nil : token_pieces[:length].to_i
         t.modifier = token_pieces[:modifier]
         lang << t
-      when Language::TOTAL_FIXED_FLOAT_RE
-        float_pieces = token_str.match(Language::NAMED_FIXED_FLOAT_RE)
-        t = Flat::Tokens::FixedFloatToken.new
+      when Language::TOTAL_FIXED_POINT_RE
+        float_pieces = token_str.match(Language::NAMED_FIXED_POINT_RE)
+        t = Flat::Tokens::FixedPointToken.new
         t.position = match.begin(0)
         t.power = float_pieces[:power].nil? ? nil : float_pieces[:power].to_i
         t.length = float_pieces[:length].to_i
