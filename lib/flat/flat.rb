@@ -7,7 +7,7 @@ end
 module Flat
   # Validates the supplied format string
   # and creates a parser from it
-  def self.create_parser str
+  def self.create_parser(str, delimiter_width=0)
     return nil unless Language.string_in_lang str
     lang = []
     str.match_all(Language::CAPTURE_TOKEN_RE).each do |match|
@@ -30,6 +30,12 @@ module Flat
       when Language::TOTAL_DATE_RE
         date_match = token_str.match(Language::NAMED_DATE_RE)
         #TODO: Implement
+      end
+      if delimiter_width != 0
+        t = Flat::IgnoreToken.new
+        t.position = -1
+        t.length = delimiter_width
+        lang << t
       end
     end
     return Flat::Parser.new(lang)
