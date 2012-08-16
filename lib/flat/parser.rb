@@ -29,7 +29,7 @@ module Flat
       result = []
       str.match(@re)[1..-1].each_with_index do |val,index|
         token = lang[index].translate(val)
-        if token.is_a(String) and trim
+        if trim and token.is_a?(String)
           token.strip!
         end
         result << token
