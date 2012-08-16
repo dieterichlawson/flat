@@ -43,7 +43,7 @@ module Flat
 
     def line_to_tsv(line)
       fields = parse(line)
-      return line.join("\t") + "\n"
+      return fields.join("\t") + "\n"
     end
   end
 end
