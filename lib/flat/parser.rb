@@ -37,16 +37,16 @@ module Flat
       return result - [:ignore]
     end
 
-    def file_to_tsv(in_filename,out_filename)
+    def file_to_tsv(in_filename,out_filename,trim=true)
       infile =  File.open(in_filename,'r')
       outfile = File.open(out_filename,'a')
       infile.each_line do |line|
-        outfile.write(line_to_tsv(line))
+        outfile.write(line_to_tsv(line,trim))
       end
     end
 
-    def line_to_tsv(line)
-      fields = parse(line)
+    def line_to_tsv(line,trim=true)
+      fields = parse(line,trim)
       return fields.join("\t") + "\n"
     end
   end
