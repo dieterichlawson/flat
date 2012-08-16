@@ -38,6 +38,7 @@ module Flat
         lang << t
       end
     end
+    lang = lang[0..-2] if delimiter_width != 0
     return Flat::Parser.new(lang)
   end
 end
