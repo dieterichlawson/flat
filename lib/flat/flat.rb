@@ -32,7 +32,7 @@ module Flat
         #TODO: Implement
       end
       if delimiter_width != 0
-        t = Flat::IgnoreToken.new
+        t = Flat::Tokens::IgnoreToken.new
         t.position = -1
         t.length = delimiter_width
         lang << t
